@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"time"
 
 	"google.golang.org/grpc"
 )
@@ -19,6 +20,34 @@ func (*server) Sum(ctx context.Context, req *service.SumRequest) (*service.SumRe
 	}
 
 	return resp, nil
+}
+
+/*
+*	Alogrithm
+*
+ */
+
+func (*server) PrimeNumberDecomposition(req *service.PNDRequest, stream service.CalculatorService_PrimeNumberDecompositionServer) error {
+	log.Printf("PND called")
+	k := int32(2)
+	N := req.GetNumber()
+	log.Printf("Number: %d", N)
+	for N > 1 {
+		if N%k == 0 {
+			N = N / k
+			log.Printf("New Number: %d", N)
+			// send response to client
+			stream.Send(&service.PNDResponse{
+				Result: k,
+			})
+			time.Sleep(2000 * time.Millisecond)
+		} else {
+			k++
+			log.Printf("k increase to %d", k)
+		}
+	}
+
+	return nil
 }
 
 func main() {
